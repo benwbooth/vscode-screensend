@@ -1,0 +1,76 @@
+{
+    "name": "screensend",
+    "displayName": "screensend",
+    "description": "Send text to iTerm2, Terminal.app, Konsole, tmux or screen sessions",
+    "keywords": [
+        "terminal",
+        "iterm2",
+        "screen",
+        "konsole",
+        "tmux",
+        "send"
+    ],
+    "version": "0.0.1",
+    "publisher": "benwbooth",
+    "engines": {
+        "vscode": "^1.14.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:screensend.list",
+        "onCommand:screensend.send"
+    ],
+    "main": "./extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "screensend.list",
+                "title": "List available terminals"
+            },
+            {
+                "command": "screensend.send",
+                "title": "Send selected text to terminal"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "screensend configuration",
+            "properties": {
+                "screensend.terminalType": {
+                    "type": "string",
+                    "default": "iTerm 2",
+                    "description": "Which terminal to send text to"
+                },
+                "screensend.chunkSize": {
+                    "type": "integer",
+                    "default": 512,
+                    "description": "Chink size in bytes (zero means no chunk size)"
+                },
+                "screensend.sleepTime": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Time to sleep in ms between sending each chunk"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
+    },
+    "dependencies": {
+        "temp": "0.8.3"
+    },
+    "devDependencies": {
+        "typescript": "^2.0.3",
+        "vscode": "^1.0.0",
+        "mocha": "^2.3.3",
+        "eslint": "^3.6.0",
+        "@types/node": "^6.0.40",
+        "@types/mocha": "^2.2.32"
+    },
+    "license": "MIT",
+    "repository": "https://github.com/benwbooth/vscode-screensend"
+}
