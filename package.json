@@ -7,10 +7,9 @@
         "iterm2",
         "screen",
         "konsole",
-        "tmux",
-        "send"
+        "tmux"
     ],
-    "version": "0.0.1",
+    "version": "0.2.0",
     "publisher": "benwbooth",
     "engines": {
         "vscode": "^1.14.0"
