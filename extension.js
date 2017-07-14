@@ -62,26 +62,33 @@ let ScreenSend = {
     if (editor.selection.isEmpty) {
       // get the text of the current paragraph
       let line = editor.selection.active.line;
-      let start = line;
-      while (start > 0 && !editor.document.lineAt(start).text.match(/^\s*$/)) { 
-        start -= 1; 
+      if (editor.document.lineAt(line).text.match(/^\s*$/)) {
+        text = "";
       }
-      let end = line;
-      while (end < editor.document.lineCount && !editor.document.lineAt(end).text.match(/^\s*$/)) { 
-        end += 1; 
+      else {
+        let start = line;
+        while (start > 0 && !editor.document.lineAt(start).text.match(/^\s*$/)) { 
+          start -= 1; 
+        }
+        let end = line;
+        while (end < editor.document.lineCount && !editor.document.lineAt(end).text.match(/^\s*$/)) { 
+          end += 1; 
+        }
+        text = editor.document.getText(
+          new vscode.Range(
+            new vscode.Position(start, 0), 
+            new vscode.Position(end, 0)));
+        if (!text.match(/\n$/)) { text += "\n"; }
       }
-      text = editor.document.getText(
-        new vscode.Range(
-          new vscode.Position(start, 0), 
-          new vscode.Position(end, 0)));
-      if (!text.match(/\n$/)) { text += "\n"; }
     }
     else {
       // get the selected text
       text = editor.selections.map((s)=>editor.document.getText(s)).join('\n');
       if (text.match(/\n/) && !text.match(/\n$/)) { text += "\n"; }
       // clear the selection
-      //editor.selections.length = 0;
+      // TODO: this doesn't work when vim mode is enabled... not sure how to fix it
+      //editor.selection = new vscode.Selection(editor.selection.start, editor.selection.start);
+      // if using vim emulation, switch to normal mode
     }
 
     let chunkSize = config.get('chunkSize');
