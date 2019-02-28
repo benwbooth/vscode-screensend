@@ -32,7 +32,6 @@ let ScreenSend = {
   send() {
     try {
       let config = vscode.workspace.getConfiguration('screensend');
-      
       let fileName = vscode.window.activeTextEditor.document.fileName;
       if (!this.session[fileName]) {
         this.list(true);
@@ -123,14 +122,14 @@ let ScreenSend = {
 
   macosxTerminalSend(text, session) {
     const {path, fd} = temp.openSync('screensend.');
-    fs.write(fd, text);
+    fs.writeSync(fd, text);
     execFileSync('osascript', [
       '-e',`set f to \"${path}\"`,
       '-e','open for access f',
       '-e','set c to (read f)',
       '-e',`tell application \"Terminal\" to do script c in first tab of first window where tty is \"${session}\"`,
     ]);
-    return fs.unlink(path);
+    return fs.unlinkSync(path);
   },
 
   itermSessions() {
@@ -143,11 +142,11 @@ let ScreenSend = {
     session = session.replace(/session id (\S+)/, 'session id "$1"');
     session = session.replace(/window id (\S+)/, 'window id "$1"');
     const {path, fd} = temp.openSync('screensend.');
-    fs.write(fd, text);
+    fs.writeSync(fd, text);
     const cmd = ['-e',`tell application \"iTerm\" to tell ${session} to write contents of file \"${path}\"`]
     execFileSync('osascript', cmd);
     //console.log("sending text=", text)
-    return fs.unlink(path);
+    return fs.unlinkSync(path);
   },
 
   konsoleSessions() {
@@ -180,7 +179,7 @@ let ScreenSend = {
 
   screenSend(text, session) {
     const {path, fd} = temp.openSync('screensend.');
-    fs.write(fd, text);
+    fs.writeSync(fd, text);
     execFileSync('screen', [
       '-S', session,
       '-X', 'eval',
@@ -191,7 +190,7 @@ let ScreenSend = {
       'msgwait 5',
       'msgminwait 1',
     ]);
-    return fs.unlink(path);
+    return fs.unlinkSync(path);
   },
 
   tmuxSessions() {
@@ -204,12 +203,12 @@ let ScreenSend = {
 
   tmuxSend(text, session) {
     const {path, fd} = temp.openSync('screensend.');
-    fs.write(fd, text);
+    fs.writeSync(fd, text);
     execFileSync('tmux', [
       'load-buffer', path, ';',
       'paste-buffer','-t',session,';'
     ]);
-    return fs.unlink(path);
+    return fs.unlinkSync(path);
   }
 };
 
