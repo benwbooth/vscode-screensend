@@ -7,42 +7,54 @@ let ScreenSend = {
   session: {},
 
   list(send) {
-    let config = vscode.workspace.getConfiguration('screensend');
-    const sessions = (() => { switch (config.get('terminalType')) {
-      case 'iTerm 2': return this.itermSessions();
-      case 'MacOS X Terminal': return this.macosxTerminalSessions();
-      case 'Konsole': return this.konsoleSessions();
-      case 'GNU Screen': return this.screenSessions();
-      case 'Tmux': return this.tmuxSessions();
-      default: throw `Unknown terminal type: ${config.get('terminalType')}`;
-    } })();
-    let fileName = vscode.window.activeTextEditor.document.fileName;
-    vscode.window.showQuickPick(sessions).then((session)=>{
-      this.session[fileName] = session;
-      if (send) { return this.send(); }
-    });
+    try {
+      let config = vscode.workspace.getConfiguration('screensend');
+      const sessions = (() => { switch (config.get('terminalType')) {
+        case 'iTerm 2': return this.itermSessions();
+        case 'MacOS X Terminal': return this.macosxTerminalSessions();
+        case 'Konsole': return this.konsoleSessions();
+        case 'GNU Screen': return this.screenSessions();
+        case 'Tmux': return this.tmuxSessions();
+        default: throw `Unknown terminal type: ${config.get('terminalType')}`;
+      } })();
+      let fileName = vscode.window.activeTextEditor.document.fileName;
+      vscode.window.showQuickPick(sessions).then((session)=>{
+        this.session[fileName] = session;
+        if (send) { return this.send(); }
+      });
+    }
+    catch (err) {
+      console.log(err);
+      throw err;
+    }
   },
 
   send() {
-    let config = vscode.workspace.getConfiguration('screensend');
-    
-    let fileName = vscode.window.activeTextEditor.document.fileName;
-    if (!this.session[fileName]) {
-      this.list(true);
-      return;
+    try {
+      let config = vscode.workspace.getConfiguration('screensend');
+      
+      let fileName = vscode.window.activeTextEditor.document.fileName;
+      if (!this.session[fileName]) {
+        this.list(true);
+        return;
+      }
+      const text = this.getSelectedText();
+      //console.log("send: session=",this.session," text=",{text})
+      const sleep = config.get('sleepTime');
+      const sendFn = (() => { switch (config.get('terminalType')) {
+        case 'iTerm 2': return this.itermSend;
+        case 'MacOS X Terminal': return this.macosxTerminalSend;
+        case 'Konsole': return this.konsoleSend;
+        case 'GNU Screen': return this.screenSend;
+        case 'Tmux': return this.tmuxSend;
+        default: throw `Unknown terminal type: ${config.get('terminalType')}`;
+      } })();
+      return this.sendText(text, sleep, sendFn, this.session[fileName]);
     }
-    const text = this.getSelectedText();
-    //console.log("send: session=",this.session," text=",{text})
-    const sleep = config.get('sleepTime');
-    const sendFn = (() => { switch (config.get('terminalType')) {
-      case 'iTerm 2': return this.itermSend;
-      case 'MacOS X Terminal': return this.macosxTerminalSend;
-      case 'Konsole': return this.konsoleSend;
-      case 'GNU Screen': return this.screenSend;
-      case 'Tmux': return this.tmuxSend;
-      default: throw `Unknown terminal type: ${config.get('terminalType')}`;
-    } })();
-    return this.sendText(text, sleep, sendFn, this.session[fileName]);
+    catch (err) {
+      console.log(err);
+      throw err;
+    }
   },
 
   sendText(text, sleep, sendFn, session) {
@@ -132,8 +144,9 @@ let ScreenSend = {
     session = session.replace(/window id (\S+)/, 'window id "$1"');
     const {path, fd} = temp.openSync('screensend.');
     fs.write(fd, text);
+    const cmd = ['-e',`tell application \"iTerm\" to tell ${session} to write contents of file \"${path}\"`]
+    execFileSync('osascript', cmd);
     //console.log("sending text=", text)
-    execFileSync('osascript', ['-e',`tell application \"iTerm\" to tell ${session} to write contents of file \"${path}\"`]);
     return fs.unlink(path);
   },
 
