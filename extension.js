@@ -141,9 +141,8 @@ let ScreenSend = {
   },
 
   ttypasteSend(text, session) {
-    execFileSync('ttypaste', [session, text]);
     //console.log("sending text=", text)
-    return fs.unlinkSync(path);
+    return execFileSync('ttypaste', [session, text]);
   },
 
   itermSessions() {
