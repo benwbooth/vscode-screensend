@@ -136,13 +136,7 @@ let ScreenSend = {
 
   ttypasteSessions() {
     const stdout = execFileSync('/bin/sh', ['-c','(u=$(id -ur); for p in /dev/pts/* /dev/ttys*; do if [ -e "$p" ] && [ $(stat -c "%u" "$p" || stat -f "%u" "$p") = "$u" ]; then echo "$p"; echo >"$p"; echo "$p" >"$p"; fi; done) || true']);
-    const list = (stdout.toString('utf8').split("\n").map((item) => item.trim()));
-    return list;
-  },
-
-  itermSessions() {
-    const stdout = execFileSync('osascript', ['-e','tell application "iTerm" to tell windows to tell tabs to return sessions']);
-    const list = (stdout.toString('utf8').split(",").map((item) => item.trim()));
+    const list = (stdout.toString('utf8').trim().split("\n").map((item) => item.trim()));
     return list;
   },
 
@@ -150,6 +144,12 @@ let ScreenSend = {
     execFileSync('ttypaste', [session, text]);
     //console.log("sending text=", text)
     return fs.unlinkSync(path);
+  },
+
+  itermSessions() {
+    const stdout = execFileSync('osascript', ['-e','tell application "iTerm" to tell windows to tell tabs to return sessions']);
+    const list = (stdout.toString('utf8').split(",").map((item) => item.trim()));
+    return list;
   },
 
   itermSend(text, session) {
