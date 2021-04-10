@@ -10,6 +10,7 @@ let ScreenSend = {
     try {
       let config = vscode.workspace.getConfiguration('screensend');
       const sessions = (() => { switch (config.get('terminalType')) {
+        case 'ttypaste': return this.ttypasteSessions();
         case 'iTerm 2': return this.itermSessions();
         case 'MacOS X Terminal': return this.macosxTerminalSessions();
         case 'Konsole': return this.konsoleSessions();
@@ -41,6 +42,7 @@ let ScreenSend = {
       //console.log("send: session=",this.session," text=",{text})
       const sleep = config.get('sleepTime');
       const sendFn = (() => { switch (config.get('terminalType')) {
+        case 'ttypaste': return this.ttypasteSend;
         case 'iTerm 2': return this.itermSend;
         case 'MacOS X Terminal': return this.macosxTerminalSend;
         case 'Konsole': return this.konsoleSend;
@@ -132,10 +134,22 @@ let ScreenSend = {
     return fs.unlinkSync(path);
   },
 
+  ttypasteSessions() {
+    const stdout = execFileSync('/bin/sh', ['-c','u=$(id -ur); for p in /dev/pts/* /dev/ttys*; do [ -e "$p" ] && [ $(stat -c "%u" "$p" || stat -f "%u" "$p") = "$u" ] && echo "$p"; echo "$p" >"$p"; done']);
+    const list = (stdout.toString('utf8').split(",").map((item) => item.trim()));
+    return list;
+  },
+
   itermSessions() {
     const stdout = execFileSync('osascript', ['-e','tell application "iTerm" to tell windows to tell tabs to return sessions']);
     const list = (stdout.toString('utf8').split(",").map((item) => item.trim()));
     return list;
+  },
+
+  ttypasteSend(text, session) {
+    execFileSync('ttypaste', [session, text]);
+    //console.log("sending text=", text)
+    return fs.unlinkSync(path);
   },
 
   itermSend(text, session) {
