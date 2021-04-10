@@ -9,7 +9,7 @@
         "konsole",
         "tmux"
     ],
-    "version": "0.11.0",
+    "version": "0.12.0",
     "publisher": "benwbooth",
     "engines": {
         "vscode": "^1.14.0"
@@ -39,8 +39,9 @@
             "properties": {
                 "screensend.terminalType": {
                     "type": "string",
-                    "default": "iTerm 2",
-                    "description": "Which terminal to send text to"
+                    "default": "ttypaste",
+                    "description": "Which terminal to send text to",
+		    "enum": ["ttypaste", "iTerm 2", "MacOS X Terminal", "Konsole", "GNU Screen", "Tmux"]
                 },
                 "screensend.chunkSize": {
                     "type": "integer",
