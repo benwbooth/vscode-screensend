@@ -9,7 +9,7 @@
         "konsole",
         "tmux"
     ],
-    "version": "0.13.0",
+    "version": "0.14.0",
     "publisher": "benwbooth",
     "engines": {
         "vscode": "^1.14.0"
@@ -19,7 +19,8 @@
     ],
     "activationEvents": [
         "onCommand:screensend.list",
-        "onCommand:screensend.send"
+        "onCommand:screensend.send",
+        "onCommand:screensend.sendPaste"
     ],
     "main": "./extension",
     "contributes": {
