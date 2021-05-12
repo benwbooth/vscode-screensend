@@ -31,6 +31,10 @@
             {
                 "command": "screensend.send",
                 "title": "Send selected text to terminal"
+            },
+            {
+                "command": "screensend.sendPaste",
+                "title": "Send selected text to terminal using bracketed paste"
             }
         ],
         "configuration": {

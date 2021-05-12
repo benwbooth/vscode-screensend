@@ -29,8 +29,12 @@ let ScreenSend = {
       throw err;
     }
   },
+  
+  sendPaste() {
+    return send(true);
+  },
 
-  send() {
+  send(paste=false) {
     try {
       let config = vscode.workspace.getConfiguration('screensend');
       let fileName = vscode.window.activeTextEditor.document.fileName;
@@ -38,9 +42,9 @@ let ScreenSend = {
         this.list(true);
         return;
       }
-      const text = this.getSelectedText();
+      const text = paste? `\e[200~${this.getSelectedText(true)}\e[201~` : this.getSelectedText();
       //console.log("send: session=",this.session," text=",{text})
-      const sleep = config.get('sleepTime');
+      const sleep = paste? 0 : config.get('sleepTime');
       const sendFn = (() => { switch (config.get('terminalType')) {
         case 'ttypaste': return this.ttypasteSend;
         case 'iTerm 2': return this.itermSend;
@@ -68,7 +72,7 @@ let ScreenSend = {
     ), sleep);
   },
 
-  getSelectedText() {
+  getSelectedText(paste=false) {
     let config = vscode.workspace.getConfiguration('screensend');
     const editor = vscode.window.activeTextEditor;
     let text;
@@ -104,7 +108,7 @@ let ScreenSend = {
       // if using vim emulation, switch to normal mode
     }
 
-    let chunkSize = config.get('chunkSize');
+    let chunkSize = paste? text.length : config.get('chunkSize');
     if (chunkSize < 1) { chunkSize = text.length; }
 
     const lines = text.split(/^/m);
