@@ -6,7 +6,7 @@ const fs = require('fs');
 let ScreenSend = {
   session: {},
 
-  list(send) {
+  list(send=false) {
     try {
       let config = vscode.workspace.getConfiguration('screensend');
       const sessions = (() => { switch (config.get('terminalType')) {
@@ -31,7 +31,13 @@ let ScreenSend = {
   },
   
   sendPaste() {
-    return send(true);
+    try {
+      return this.send(true);
+    }
+    catch (err) {
+      console.log(err);
+      throw err;
+    }
   },
 
   send(paste=false) {
