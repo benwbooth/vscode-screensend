@@ -71,7 +71,9 @@ let ScreenSend = {
   sendText(text, sleep, sendFn, session) {
     if (text.length === 0) { return; }
     if (!sleep) {
-      sendFn.call(this, text.join(''), session);
+      for (let t of text) {
+        sendFn.call(this, t, session);
+      }
     }
     else {
       sendFn.call(this, text[0], session);
@@ -151,7 +153,7 @@ let ScreenSend = {
   },
 
   ttypasteSessions() {
-    const stdout = execFileSync('/bin/sh', ['-c','(u=$(id -ur); for p in /dev/pts/* /dev/ttys*; do if [ -e "$p" ] && [ $(stat -c "%u" "$p" || stat -f "%u" "$p") = "$u" ]; then echo "$p"; echo >"$p"; echo "$p" >"$p"; fi; done) || true']);
+    const stdout = execFileSync('/bin/sh', ['-c','(u=$(id -ur); for p in /dev/pts/* /dev/ttys*; do if [ -e "$p" ] && [ $(stat -c "%u" "$p" 2>/dev/null || stat -f "%u" "$p" 2>/dev/null) = "$u" ]; then echo "$p"; echo >"$p"; echo "$p" >"$p"; fi; done) || true']);
     const list = (stdout.toString('utf8').trim().split("\n").map((item) => item.trim()));
     return list;
   },
