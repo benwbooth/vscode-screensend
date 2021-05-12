@@ -48,7 +48,7 @@ let ScreenSend = {
         this.list(true);
         return;
       }
-      const text = paste? `\e[200~${this.getSelectedText(true)}\e[201~` : this.getSelectedText();
+      const text = paste? `\x1b[200~${this.getSelectedText(true)}\x1b[201~` : this.getSelectedText();
       //console.log("send: session=",this.session," text=",{text})
       const sleep = paste? 0 : config.get('sleepTime');
       const sendFn = (() => { switch (config.get('terminalType')) {
@@ -70,12 +70,17 @@ let ScreenSend = {
 
   sendText(text, sleep, sendFn, session) {
     if (text.length === 0) { return; }
-    sendFn.call(this, text[0], session);
-    if (text.length === 1) { return; }
-    return setTimeout(( () => {
-      return this.sendText(text.slice(1), sleep, sendFn, session);
+    if (!sleep) {
+      sendFn.call(this, text.join(''), session);
     }
-    ), sleep);
+    else {
+      sendFn.call(this, text[0], session);
+      if (text.length === 1) { return; }
+      return setTimeout(( () => {
+        return this.sendText(text.slice(1), sleep, sendFn, session);
+      }
+      ), sleep);
+    }
   },
 
   getSelectedText(paste=false) {
@@ -114,9 +119,10 @@ let ScreenSend = {
       // if using vim emulation, switch to normal mode
     }
 
-    let chunkSize = paste? text.length : config.get('chunkSize');
-    if (chunkSize < 1) { chunkSize = text.length; }
-
+    let chunkSize = config.get('chunkSize');
+    if (chunkSize < 1 || paste) {
+      return [text];
+    }
     const lines = text.split(/^/m);
     const chunks = [''];
     for (let line of lines) {
