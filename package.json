@@ -9,7 +9,7 @@
         "konsole",
         "tmux"
     ],
-    "version": "0.19.0",
+    "version": "0.20.0",
     "publisher": "benwbooth",
     "engines": {
         "vscode": "^1.14.0"
@@ -64,6 +64,11 @@
                     "type": "number",
                     "default": 0,
                     "description": "Time to sleep in ms between sending each chunk"
+                },
+                "screensend.useBracketedPaste": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use bracketed paste when sending text to screen"
                 }
             }
         }
