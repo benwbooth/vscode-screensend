@@ -40,8 +40,7 @@ let ScreenSend = {
     }
   },
 
-  send(paste=null) {
-    if (paste === null) paste = vscode.workspace.getConfiguration('useBracketedPaste');
+  send(paste=false) {
     try {
       let config = vscode.workspace.getConfiguration('screensend');
       let fileName = vscode.window.activeTextEditor.document.fileName;
@@ -86,8 +85,7 @@ let ScreenSend = {
     }
   },
 
-  getSelectedText(paste=null) {
-    if (paste === null) paste = vscode.workspace.getConfiguration('useBracketedPaste');
+  getSelectedText(paste=false) {
     let config = vscode.workspace.getConfiguration('screensend');
     const editor = vscode.window.activeTextEditor;
     let text;
