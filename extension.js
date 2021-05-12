@@ -239,6 +239,11 @@ function activate(context) {
         ScreenSend.send();
     });
     context.subscriptions.push(send);
+
+    let sendPaste = vscode.commands.registerCommand('screensend.sendPaste', function () {
+        ScreenSend.sendPaste();
+    });
+    context.subscriptions.push(sendPaste);
 }
 exports.activate = activate;
 
