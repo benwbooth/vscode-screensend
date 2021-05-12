@@ -45,7 +45,14 @@
                     "type": "string",
                     "default": "ttypaste",
                     "description": "Which terminal to send text to",
-		    "enum": ["ttypaste", "iTerm 2", "MacOS X Terminal", "Konsole", "GNU Screen", "Tmux"]
+                    "enum": [
+                        "ttypaste",
+                        "iTerm 2",
+                        "MacOS X Terminal",
+                        "Konsole",
+                        "GNU Screen",
+                        "Tmux"
+                    ]
                 },
                 "screensend.chunkSize": {
                     "type": "integer",
