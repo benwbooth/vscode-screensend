@@ -48,7 +48,7 @@ let ScreenSend = {
         this.list(true);
         return;
       }
-      const text = paste? ["\x1b[200~"].concat(this.getSelectedText(true)).concat(["\x1b[201~"]) : this.getSelectedText();
+      const text = paste? ["\x1b[200~"].concat(this.getSelectedText(true)).concat(["\x1b[201~\n"]) : this.getSelectedText();
       //console.log("send: session=",this.session," text=",{text})
       const sleep = paste? 0 : config.get('sleepTime');
       const sendFn = (() => { switch (config.get('terminalType')) {

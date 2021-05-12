@@ -9,7 +9,7 @@
         "konsole",
         "tmux"
     ],
-    "version": "0.21.0",
+    "version": "0.22.0",
     "publisher": "benwbooth",
     "engines": {
         "vscode": "^1.14.0"
