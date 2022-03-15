@@ -6,7 +6,7 @@ const fs = require('fs');
 let ScreenSend = {
   session: {},
 
-  list(send=false) {
+  list(send=false, paste=false) {
     try {
       let config = vscode.workspace.getConfiguration('screensend');
       const sessions = (() => { switch (config.get('terminalType')) {
@@ -21,7 +21,7 @@ let ScreenSend = {
       let fileName = vscode.window.activeTextEditor.document.fileName;
       vscode.window.showQuickPick(sessions).then((session)=>{
         this.session[fileName] = session;
-        if (send) { return this.send(); }
+        if (send) { return this.send(paste); }
       });
     }
     catch (err) {
@@ -45,7 +45,7 @@ let ScreenSend = {
       let config = vscode.workspace.getConfiguration('screensend');
       let fileName = vscode.window.activeTextEditor.document.fileName;
       if (!this.session[fileName]) {
-        this.list(true);
+        this.list(true, paste);
         return;
       }
       const text = paste? ["\x1b[200~"].concat(this.getSelectedText(true)).concat(["\x1b[201~\n"]) : this.getSelectedText();
