@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     exit(1);
   }
   for (i = 2; i < argc; i++) {
-    if (i > 1) stackchar(fd, ' ');
+    if (i > 2) stackchar(fd, ' ');
     for (j = 0; (c = argv[i][j]); j++) {
       stackchar(fd, c);
     }
