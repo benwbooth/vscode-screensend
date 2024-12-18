@@ -160,7 +160,7 @@ let ScreenSend = {
 
   ttypasteSend(text, session) {
     //console.log("sending text=", text)
-    return execFileSync('/usr/bin/env ttypaste', [session, text]);
+    return execFileSync('ttypaste', [session, text]);
   },
 
   itermSessions() {
