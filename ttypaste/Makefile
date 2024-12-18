@@ -1,4 +1,4 @@
-#CFLAGS = -static
+CFLAGS = -static
 
 ttypaste: ttypaste.c
 	$(CC) $(CFLAGS) -o $@ $<
