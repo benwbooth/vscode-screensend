@@ -64,6 +64,31 @@
                     "type": "number",
                     "default": 0,
                     "description": "Time to sleep in ms between sending each chunk"
+                },
+                "screensend.ttypastePath": {
+                    "type": "string",
+                    "default": "ttypaste",
+                    "description": "Path to ttypaste executable file"
+                },
+                "screensend.osascriptPath": {
+                    "type": "string",
+                    "default": "osascript",
+                    "description": "Path to osascript executable file"
+                },
+                "screensend.screenPath": {
+                    "type": "string",
+                    "default": "screen",
+                    "description": "Path to screen executable file"
+                },
+                "screensend.tmuxPath": {
+                    "type": "string",
+                    "default": "tmux",
+                    "description": "Path to tmux executable file"
+                },
+                "screensend.qdbusPath": {
+                    "type": "string",
+                    "default": "qdbus",
+                    "description": "Path to qdbus executable file"
                 }
             }
         }

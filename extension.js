@@ -135,15 +135,17 @@ let ScreenSend = {
   },
 
   macosxTerminalSessions() {
-    const stdout = execFileSync('osascript', ['-e','tell application "Terminal" to tell windows to tell tabs to return tty']);
+    let config = vscode.workspace.getConfiguration('screensend');
+    const stdout = execFileSync(config.get('osascriptPath'), ['-e','tell application "Terminal" to tell windows to tell tabs to return tty']);
     const list = stdout.toString('utf8').replace(/\n$/,'').split(",[ \n]*");
     return list;
   },
 
   macosxTerminalSend(text, session) {
+    let config = vscode.workspace.getConfiguration('screensend');
     const {path, fd} = temp.openSync('screensend.');
     fs.writeSync(fd, text);
-    execFileSync('osascript', [
+    execFileSync(config.get('osascriptPath'), [
       '-e',`set f to \"${path}\"`,
       '-e','open for access f',
       '-e','set c to (read f)',
@@ -160,33 +162,37 @@ let ScreenSend = {
 
   ttypasteSend(text, session) {
     //console.log("sending text=", text)
-    return execFileSync('ttypaste', [session, text]);
+    let config = vscode.workspace.getConfiguration('screensend');
+    return execFileSync(config.get('ttypastePath'), [session, text]);
   },
 
   itermSessions() {
-    const stdout = execFileSync('osascript', ['-e','tell application "iTerm" to tell windows to tell tabs to return sessions']);
+    let config = vscode.workspace.getConfiguration('screensend');
+    const stdout = execFileSync(config.get('osascriptPath'), ['-e','tell application "iTerm" to tell windows to tell tabs to return sessions']);
     const list = (stdout.toString('utf8').split(",").map((item) => item.trim()));
     return list;
   },
 
   itermSend(text, session) {
+    let config = vscode.workspace.getConfiguration('screensend');
     session = session.replace(/session id (\S+)/, 'session id "$1"');
     session = session.replace(/window id (\S+)/, 'window id "$1"');
     const {path, fd} = temp.openSync('screensend.');
     fs.writeSync(fd, text);
     const cmd = ['-e',`tell application \"iTerm\" to tell ${session} to write contents of file \"${path}\"`]
-    execFileSync('osascript', cmd);
+    execFileSync(config.get('osascriptPath'), cmd);
     //console.log("sending text=", text)
     return fs.unlinkSync(path);
   },
 
   konsoleSessions() {
-    let stdout = execFileSync('qdbus', ['org.kde.konsole*']);
+    let config = vscode.workspace.getConfiguration('screensend');
+    let stdout = execFileSync(config.get('qdbusPath'), ['org.kde.konsole*']);
     const konsole = stdout.toString('utf8').split(/\r?\n/);
     const list = [];
     for (let k of konsole) {
       if (k) {
-        stdout = execFileSync('qdbus', [k]);
+        stdout = execFileSync(config.get('qdbusPath'), [k]);
         const input = stdout.toString('utf8');
         let matches = []; const regex = /^\/Sessions\/([^\n]+)$/gm;
         while ((matches = regex.exec(input))) { list.push(k+"\t"+matches[1]); }
@@ -196,12 +202,14 @@ let ScreenSend = {
   },
 
   konsoleSend(text, session) {
+    let config = vscode.workspace.getConfiguration('screensend');
     const [k, s] = session.split("\t");
-    return execFileSync('qdbus', [k,`/Sessions/${s}`,'sendText',text]);
+    return execFileSync(config.get('qdbusPath'), [k,`/Sessions/${s}`,'sendText',text]);
   },
 
   screenSessions() {
-    const stdout = execFileSync('screen', ['-list']);
+    let config = vscode.workspace.getConfiguration('screensend');
+    const stdout = execFileSync(config.get('screenPath'), ['-list']);
     const input = stdout.toString('utf8');
     let matches = []; const list = []; const regex = /^\s+(\S+)/gm;
     while ((matches = regex.exec(input))) { list.push(matches[1]); }
@@ -209,9 +217,10 @@ let ScreenSend = {
   },
 
   screenSend(text, session) {
+    let config = vscode.workspace.getConfiguration('screensend');
     const {path, fd} = temp.openSync('screensend.');
     fs.writeSync(fd, text);
-    execFileSync('screen', [
+    execFileSync(config.get('screenPath'), [
       '-S', session,
       '-X', 'eval',
       'msgminwait 0',
@@ -225,7 +234,8 @@ let ScreenSend = {
   },
 
   tmuxSessions() {
-    const stdout = execFileSync('tmux', ['list-sessions']);
+    let config = vscode.workspace.getConfiguration('screensend');
+    const stdout = execFileSync(config.get('tmuxPath'), ['list-sessions']);
     const input = stdout.toString('utf8');
     let matches = []; const list = []; const regex = /^([^:]*):/gm;
     while ((matches = regex.exec(input))) { list.push(matches[1]); }
@@ -233,9 +243,10 @@ let ScreenSend = {
   },
 
   tmuxSend(text, session) {
+    let config = vscode.workspace.getConfiguration('screensend');
     const {path, fd} = temp.openSync('screensend.');
     fs.writeSync(fd, text);
-    execFileSync('tmux', [
+    execFileSync(config.get('tmuxPath'), [
       'load-buffer', path, ';',
       'paste-buffer','-t',session,';'
     ]);
