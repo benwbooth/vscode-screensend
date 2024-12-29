@@ -2,6 +2,7 @@ let vscode = require('vscode');
 const { execFileSync } = require("child_process");
 const temp = require('temp');
 const fs = require('fs');
+const shellQuote = require('shell-quote');
 
 let ScreenSend = {
   session: {},
@@ -135,22 +136,28 @@ let ScreenSend = {
   },
 
   macosxTerminalSessions() {
-    let config = vscode.workspace.getConfiguration('screensend');
-    const stdout = execFileSync(config.get('osascriptPath'), ['-e','tell application "Terminal" to tell windows to tell tabs to return tty']);
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('osascriptPath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "osascript not found in PATH" }
+    const stdout = execFileSync(cmd, args.concat(['-e','tell application "Terminal" to tell windows to tell tabs to return tty']));
     const list = stdout.toString('utf8').replace(/\n$/,'').split(",[ \n]*");
     return list;
   },
 
   macosxTerminalSend(text, session) {
-    let config = vscode.workspace.getConfiguration('screensend');
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('osascriptPath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "osascript not found in PATH" }
     const {path, fd} = temp.openSync('screensend.');
     fs.writeSync(fd, text);
-    execFileSync(config.get('osascriptPath'), [
+    execFileSync(cmd, args.concat([
       '-e',`set f to \"${path}\"`,
       '-e','open for access f',
       '-e','set c to (read f)',
       '-e',`tell application \"Terminal\" to do script c in first tab of first window where tty is \"${session}\"`,
-    ]);
+    ]));
     return fs.unlinkSync(path);
   },
 
@@ -162,37 +169,48 @@ let ScreenSend = {
 
   ttypasteSend(text, session) {
     //console.log("sending text=", text)
-    let config = vscode.workspace.getConfiguration('screensend');
-    return execFileSync(config.get('ttypastePath'), [session, text]);
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('ttypastePath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "ttypaste not found in PATH" }
+    return execFileSync(cmd, args.concat([session, text]));
   },
 
   itermSessions() {
-    let config = vscode.workspace.getConfiguration('screensend');
-    const stdout = execFileSync(config.get('osascriptPath'), ['-e','tell application "iTerm" to tell windows to tell tabs to return sessions']);
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('osascriptPath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "osascript not found in PATH" }
+    const stdout = execFileSync(cmd, args.concat(['-e','tell application "iTerm" to tell windows to tell tabs to return sessions']));
     const list = (stdout.toString('utf8').split(",").map((item) => item.trim()));
     return list;
   },
 
   itermSend(text, session) {
-    let config = vscode.workspace.getConfiguration('screensend');
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('osascriptPath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "osascript not found in PATH" }
     session = session.replace(/session id (\S+)/, 'session id "$1"');
     session = session.replace(/window id (\S+)/, 'window id "$1"');
     const {path, fd} = temp.openSync('screensend.');
     fs.writeSync(fd, text);
-    const cmd = ['-e',`tell application \"iTerm\" to tell ${session} to write contents of file \"${path}\"`]
-    execFileSync(config.get('osascriptPath'), cmd);
+    execFileSync(config.get('osascriptPath'), args.concat(['-e',`tell application \"iTerm\" to tell ${session} to write contents of file \"${path}\"`]));
     //console.log("sending text=", text)
     return fs.unlinkSync(path);
   },
 
   konsoleSessions() {
-    let config = vscode.workspace.getConfiguration('screensend');
-    let stdout = execFileSync(config.get('qdbusPath'), ['org.kde.konsole*']);
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('qdbusPath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "qdbus not found in PATH" }
+    let stdout = execFileSync(cmd, args.concat(['org.kde.konsole*']));
     const konsole = stdout.toString('utf8').split(/\r?\n/);
     const list = [];
     for (let k of konsole) {
       if (k) {
-        stdout = execFileSync(config.get('qdbusPath'), [k]);
+        stdout = execFileSync(cmd, args.concat([k]));
         const input = stdout.toString('utf8');
         let matches = []; const regex = /^\/Sessions\/([^\n]+)$/gm;
         while ((matches = regex.exec(input))) { list.push(k+"\t"+matches[1]); }
@@ -202,14 +220,20 @@ let ScreenSend = {
   },
 
   konsoleSend(text, session) {
-    let config = vscode.workspace.getConfiguration('screensend');
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('qdbusPath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "qdbus not found in PATH" }
     const [k, s] = session.split("\t");
-    return execFileSync(config.get('qdbusPath'), [k,`/Sessions/${s}`,'sendText',text]);
+    return execFileSync(cmd, args.concat([k,`/Sessions/${s}`,'sendText',text]));
   },
 
   screenSessions() {
-    let config = vscode.workspace.getConfiguration('screensend');
-    const stdout = execFileSync(config.get('screenPath'), ['-list']);
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('screenPath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "screen not found in PATH" }
+    const stdout = execFileSync(cmd, args.concat(['-list']));
     const input = stdout.toString('utf8');
     let matches = []; const list = []; const regex = /^\s+(\S+)/gm;
     while ((matches = regex.exec(input))) { list.push(matches[1]); }
@@ -217,10 +241,13 @@ let ScreenSend = {
   },
 
   screenSend(text, session) {
-    let config = vscode.workspace.getConfiguration('screensend');
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('screenPath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "screen not found in PATH" }
     const {path, fd} = temp.openSync('screensend.');
     fs.writeSync(fd, text);
-    execFileSync(config.get('screenPath'), [
+    execFileSync(cmd, args.concat([
       '-S', session,
       '-X', 'eval',
       'msgminwait 0',
@@ -229,13 +256,16 @@ let ScreenSend = {
       'paste .',
       'msgwait 5',
       'msgminwait 1',
-    ]);
+    ]));
     return fs.unlinkSync(path);
   },
 
   tmuxSessions() {
-    let config = vscode.workspace.getConfiguration('screensend');
-    const stdout = execFileSync(config.get('tmuxPath'), ['list-sessions']);
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('tmuxPath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "tmux not found in PATH" }
+    const stdout = execFileSync(cmd, args.concat(['list-sessions']));
     const input = stdout.toString('utf8');
     let matches = []; const list = []; const regex = /^([^:]*):/gm;
     while ((matches = regex.exec(input))) { list.push(matches[1]); }
@@ -243,13 +273,16 @@ let ScreenSend = {
   },
 
   tmuxSend(text, session) {
-    let config = vscode.workspace.getConfiguration('screensend');
+    const config = vscode.workspace.getConfiguration('screensend');
+    const args = shellQuote.parse(config.get('tmuxPath'));
+    const cmd = args.shift();
+    if (!cmd) { throw "tmux not found in PATH" }
     const {path, fd} = temp.openSync('screensend.');
     fs.writeSync(fd, text);
-    execFileSync(config.get('tmuxPath'), [
+    execFileSync(cmd, args.concat([
       'load-buffer', path, ';',
       'paste-buffer','-t',session,';'
-    ]);
+    ]));
     return fs.unlinkSync(path);
   }
 };
