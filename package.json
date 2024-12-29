@@ -58,7 +58,7 @@
                 "screensend.chunkSize": {
                     "type": "integer",
                     "default": 512,
-                    "description": "Chink size in bytes (zero means no chunk size)"
+                    "description": "Chunk size in bytes (zero means no chunk size)"
                 },
                 "screensend.sleepTime": {
                     "type": "number",
