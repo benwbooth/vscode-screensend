@@ -10,7 +10,10 @@ achieve this.
 For cases where running a SUID binary is not allowed, the following strategy
 can be used:
 
-- Create a passphraseless ssh keypair using `ssh-keygen -f ttypaste`. This will
+- Install `openssh` and start `sshd`.
+- Edit `/etc/ssh/sshd_config` and make sure `PermitRootLogin` is set to `yes`
+  or `prohibit-password`.
+- Create a passphraseless ssh keypair using `ssh-keygen -f ~/.ssh/ttypaste`. This will
   create a `ttypaste` and `ttypaste.pub` file in your `~/.ssh` folder. Just hit
   `ENTER` both times when prompted for a passphrase.
 - Edit `/root/.ssh/authorized_keys` as root, and add the contents of
