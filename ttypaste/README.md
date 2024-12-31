@@ -29,6 +29,8 @@ Host ttypaste
 
 ```
 - Make sure to `chmod 600 ~/.ssh/config`
+- run `ssh localhost` once to make sure the host key is added. Type `yes` if
+  prompted.
 - In VS Code, under the screensend settings, change the
   `screensend.ttypastePath` from `ttypaste` to `ssh ttypaste`.
 
