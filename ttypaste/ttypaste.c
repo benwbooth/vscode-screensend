@@ -30,10 +30,10 @@ int main(int argc, char *argv[])
     perror("stat");
     exit(1);
   }
-  if (info.st_uid != getuid()) {
-    fprintf(stderr, "Cannot open file \"%s\", uids don't match\n", argv[1]);
-    exit(1);
-  }
+  //if (info.st_uid != getuid()) {
+  //  fprintf(stderr, "Cannot open file \"%s\", uids don't match\n", argv[1]);
+  //  exit(1);
+  //}
   fd = open(argv[1], O_RDONLY);
   if (fd < 0) {
     perror("open");
