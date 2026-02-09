@@ -13,6 +13,9 @@
           buildInputs = [
             gcc glibc glibc.static gnumake bashInteractive stdenv
           ];
+          # Keep flake inputs in closure so GC doesn't collect them
+          FLAKE_INPUTS = builtins.concatStringsSep ":" [ "${nixpkgs}" "${flake-utils}" ];
+
           shellHook = '' '';
         };
       };
